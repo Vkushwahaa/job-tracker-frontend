@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
 
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [total, setTotal] = useState(0); // 👈 added
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -66,8 +67,10 @@ export default function DashboardPage() {
           },
         });
         console.log("res", res.data);
+
         setJobs(res.data.data);
         setPages(res.data.meta.pages);
+        setTotal(res.data.meta.total); // 👈 assuming meta.total exists
       } finally {
         setLoading(false);
       }
@@ -86,8 +89,8 @@ export default function DashboardPage() {
   function clearFilters() {
     const reset = {
       q: "",
-      status: "all",
-      source: "all",
+      status: "",
+      source: "",
       sort: "-createdAt",
     };
     setDraftFilters(reset);
@@ -100,8 +103,6 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background py-6">
       <div className="container mx-auto px-4 max-w-4xl">
-        <h1 className="text-2xl font-semibold m-2">Welcome, {user?.name}</h1>
-
         {/* -------- Filters -------- */}
         <div className="flex flex-wrap gap-4 items-end mb-2">
           <Input
@@ -123,7 +124,6 @@ export default function DashboardPage() {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
               <SelectItem value="applied">Applied</SelectItem>
               <SelectItem value="interview">Interview</SelectItem>
               <SelectItem value="selected">Selected</SelectItem>
@@ -141,7 +141,6 @@ export default function DashboardPage() {
               <SelectValue placeholder="Source" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
               <SelectItem value="linkedin">LinkedIn</SelectItem>
               <SelectItem value="naukri">Naukri</SelectItem>
               <SelectItem value="internshala">Internshala</SelectItem>
@@ -162,15 +161,35 @@ export default function DashboardPage() {
         {/* -------- Job List -------- */}
         {loading ? (
           <p>Loading jobs...</p>
-        ) : jobs.length === 0 ? (
-          <p className="text-muted-foreground">No job applications found.</p>
+        ) : jobs.length === 0 && total === 0 ? (
+          // GLOBAL EMPTY STATE
+          <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 border rounded-lg">
+            <h2 className="text-xl font-semibold">No job applications yet</h2>
+            <p className="text-muted-foreground max-w-sm">
+              Start tracking your applications by adding your first job.
+            </p>
+            <Button onClick={() => router.push("/jobs/new")}>
+              Add your first job
+            </Button>
+          </div>
+        ) : jobs.length === 0 && total > 0 ? (
+          // FILTER EMPTY STATE
+          <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 border rounded-lg">
+            <h2 className="text-lg font-semibold">No results found</h2>
+            <p className="text-muted-foreground max-w-sm">
+              No jobs match your current filters or search query.
+            </p>
+            <Button variant="outline" onClick={clearFilters}>
+              Clear filters
+            </Button>
+          </div>
         ) : (
           <ul className="space-y-3">
             {jobs.map((job) => (
               <li
                 key={job._id}
                 onClick={() => router.push(`/jobs/${job._id}`)}
-                className="border rounded-md p-4 flex justify-between hover:"
+                className="border rounded-md p-4 flex justify-between hover:cursor-pointer hover:bg-accent"
               >
                 <div>
                   <p className="font-medium">{job.companyName}</p>
@@ -191,27 +210,29 @@ export default function DashboardPage() {
         )}
 
         {/* -------- Pagination -------- */}
-        <div className="flex items-center gap-4 pt-4">
-          <Button
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Previous
-          </Button>
+        {jobs.length > 0 && (
+          <div className="flex items-center gap-4 pt-4">
+            <Button
+              variant="outline"
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </Button>
 
-          <span>
-            Page {page} of {pages}
-          </span>
+            <span>
+              Page {page} of {pages}
+            </span>
 
-          <Button
-            variant="outline"
-            disabled={page === pages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
-        </div>
+            <Button
+              variant="outline"
+              disabled={page === pages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

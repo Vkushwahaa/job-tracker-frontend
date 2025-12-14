@@ -16,6 +16,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ArrowBigLeft } from "lucide-react";
 
 export default function NewJobPage() {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function NewJobPage() {
         onClick={() => router.back()}
         aria-label="Go back"
       >
-        <p>=</p>
+        <ArrowBigLeft className="size-5" />
       </Button>
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-xl">
