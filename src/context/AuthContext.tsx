@@ -13,7 +13,7 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const [token, setToken] = useState<string | null>(() => {
+  const [accessToken, setAccessToken] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
     return Cookies.get("token") || null;
   });
@@ -39,8 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ✅ Only use useEffect to sync with external system (Axios headers)
   useEffect(() => {
-    if (token) {
-      api.defaults.headers.common.Authorization = `Bearer ${token}`;
+    if (accessToken) {
+      api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     } else {
       delete api.defaults.headers.common.Authorization;
     }
@@ -49,42 +49,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTimeout(() => {
       setLoading(false);
     }, 0);
-  }, [token]); // Re-run if token changes (e.g., login/logout)
+  }, [accessToken]); // Re-run if token changes (e.g., login/logout)
 
   async function login(email: string, password: string) {
-    try {
-      const res = await api.post("/auth/login", { email, password });
-      const { user, token } = res.data;
+    const res = await api.post("/auth/login", { email, password });
 
-      Cookies.set("token", token);
-      Cookies.set("user", JSON.stringify(user));
+    const { user, accessToken } = res.data;
+    console.log("res", res, "user", user);
 
-      setUser(user);
-      setToken(token);
-      // Effect will auto-sync the header
-    } catch (err: unknown) {
-      if (err instanceof AxiosError) {
-        console.log("Response data:", err.response?.data);
-        throw err;
-      }
-      throw new Error("An unknown error occurred during login");
-    }
+    Cookies.set("accessToken", accessToken);
+    Cookies.set("user", JSON.stringify(user));
+
+    setUser(user);
+    setAccessToken(accessToken);
   }
-
   function logout() {
-    Cookies.remove("token");
-    Cookies.remove("user");
-
-    setUser(null);
-    setToken(null);
-    // Effect will remove header
+    api.post("/auth/logout").finally(() => {
+      Cookies.remove("accessToken");
+      Cookies.remove("user");
+      setUser(null);
+      setAccessToken(null);
+      window.location.href = "/login";
+    });
   }
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        let accessToken = Cookies.get("accessToken");
+        if (!accessToken) {
+          // Silent refresh
+          const res = await api.post("/auth/refresh"); // refreshToken cookie is sent automatically
+          console.log("cookies:", res);
+
+          accessToken = res.data?.accessToken;
+          if (accessToken) {
+            Cookies.set("accessToken", accessToken);
+          }
+        }
+
+        if (accessToken) {
+          api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+          setAccessToken(accessToken);
+
+          // Fetch user after token is valid
+          const userRes = await api.get("/auth/me");
+          setUser(userRes.data.user);
+          Cookies.set("user", JSON.stringify(userRes.data.user));
+        }
+      } catch (err) {
+        Cookies.remove("accessToken");
+        Cookies.remove("user");
+        setUser(null);
+        setAccessToken(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        token,
+        accessToken,
         login,
         logout,
         register: async () => {}, // implement later

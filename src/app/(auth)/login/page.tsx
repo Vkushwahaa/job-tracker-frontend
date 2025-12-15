@@ -71,6 +71,15 @@ export default function LoginPage() {
             <Button className="w-full" disabled={loading}>
               {loading ? "Logging in ..." : "Login"}
             </Button>
+            <p className="text-sm text-center text-muted-foreground">
+              Don&apos;t have a account yet?{" "}
+              <button
+                onClick={() => router.push("/register")}
+                className="underline"
+              >
+                register
+              </button>
+            </p>
           </form>
         </CardContent>
       </Card>

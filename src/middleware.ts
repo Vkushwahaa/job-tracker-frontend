@@ -11,8 +11,8 @@ export function middleware(request: NextRequest) {
   const isProtectedPage =
     pathname.startsWith("/dashboard") || pathname.startsWith("/jobs");
 
-  const authCookie = request.cookies.get("token");
-  const isLoggedIn = Boolean(authCookie?.value);
+  const refreshCookie = request.cookies.get("refreshToken");
+  const isLoggedIn = Boolean(refreshCookie?.value);
 
   if (isAuthPage && isLoggedIn) {
     return NextResponse.redirect(new URL("/dashboard", request.url));

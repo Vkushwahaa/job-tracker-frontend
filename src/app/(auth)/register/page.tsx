@@ -32,7 +32,6 @@ export default function RegisterPage() {
 
     try {
       await api.post("/auth/register", form);
-
       toast.success("Account created", {
         description: "You can now login with your credentials.",
       });
@@ -91,7 +90,7 @@ export default function RegisterPage() {
               </Button>
             </form>
 
-            <p className="text-sm text-center text-muted-foreground">
+            <p className="text-sm text-center text-muted-foreground mt-1">
               Already have an account?{" "}
               <button
                 onClick={() => router.push("/login")}
