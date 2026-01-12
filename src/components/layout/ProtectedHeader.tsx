@@ -12,7 +12,9 @@ export default function ProtectedHeader() {
     logout();
     router.replace("/login");
   }
-
+  function handleSettings() {
+    router.replace("/settings");
+  }
   return (
     <header className="h-14 border-b px-6 flex items-center justify-between">
       <h1
@@ -29,6 +31,9 @@ export default function ProtectedHeader() {
 
         <Button variant="outline" size="sm" onClick={handleLogout}>
           Logout
+        </Button>
+        <Button variant="outline" size="sm" onClick={handleSettings}>
+          settings
         </Button>
       </div>
     </header>

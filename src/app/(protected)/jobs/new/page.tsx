@@ -22,10 +22,14 @@ export default function NewJobPage() {
   const router = useRouter();
 
   const [form, setForm] = useState({
-    companyName: "",
-    jobTitle: "",
+    company: {
+      name: "",
+    },
+    job: {
+      title: "",
+    },
     status: "applied",
-    source: "linkedin",
+    source: "other",
     notes: "",
   });
 
@@ -45,7 +49,14 @@ export default function NewJobPage() {
     setLoading(true);
 
     try {
-      await api.post("/jobs", form);
+      await api.post("/jobs", {
+        company: form.company,
+        job: form.job,
+        status: form.status,
+        source: form.source,
+        notes: form.notes,
+      });
+
       router.push("/dashboard");
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -54,6 +65,20 @@ export default function NewJobPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function updateCompanyName(value: string) {
+    setForm((prev) => ({
+      ...prev,
+      company: { ...prev.company, name: value },
+    }));
+  }
+
+  function updateJobTitle(value: string) {
+    setForm((prev) => ({
+      ...prev,
+      job: { ...prev.job, title: value },
+    }));
   }
 
   return (
@@ -75,15 +100,15 @@ export default function NewJobPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               placeholder="Company name"
-              value={form.companyName}
-              onChange={(e) => updateField("companyName", e.target.value)}
+              value={form.company.name}
+              onChange={(e) => updateCompanyName(e.target.value)}
               required
             />
 
             <Input
               placeholder="Job title"
-              value={form.jobTitle}
-              onChange={(e) => updateField("jobTitle", e.target.value)}
+              value={form.job.title}
+              onChange={(e) => updateJobTitle(e.target.value)}
               required
             />
 
