@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Job Tracker – Smart Gmail-Powered Job Application Tracker
 
-## Getting Started
+Job Tracker is a web application that automatically tracks your job applications by securely syncing with your Gmail inbox. It detects application confirmation emails, extracts relevant job details, and organizes them into a structured dashboard — reducing the need for manual tracking.
 
-First, run the development server:
+The application combines **rule-based email parsing** with **AI-assisted extraction** to identify job applications, while still allowing full manual control.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Key Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🔐 Secure Gmail Integration
+- Connects to Gmail using **Google OAuth 2.0**
+- Requests **read-only email access**
+- Clearly displays Google’s consent screen before access is granted
+- Tokens are securely stored and refreshed automatically
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+### 📥 Automatic Job Application Sync
+- Scans recent Gmail messages
+- Detects job application confirmation emails (Indeed, company ATS, etc.)
+- Extracts:
+  - Company name  
+  - Job title  
+  - Application status (e.g., *Applied*)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 📊 Centralized Dashboard
+- View all job applications in one place
+- See application status, confidence level, and last activity
+- Automatically updated when new emails arrive
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+<img width="1470" height="623" alt="image" src="https://github.com/user-attachments/assets/476429fe-b96c-48f3-a062-29a763aaadb9" />
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 📝 Single Job View
+- Detailed view for each job application
+- Shows extracted data and internal notes
+- Useful for reviewing auto-detected entries
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<img width="1470" height="691" alt="image" src="https://github.com/user-attachments/assets/83a34509-b4a7-4c21-aedb-54b62f6d919e" />
+
+---
+
+### ✍️ Manual Job Entry
+- Users can manually add job applications
+- Helpful when:
+  - An email was missed
+  - A job was applied via a portal without email confirmation
+
+---
+
+## 🤖 AI-Assisted Parsing (Current State)
+
+The system uses a **hybrid approach**:
+- **Heuristic-based parsing** for known email formats (e.g., Indeed)
+- **AI fallback parsing** for low-confidence or ambiguous emails
+
+### Current Limitations
+- AI parsing is rate-limited due to daily API limits
+- When the AI budget is exhausted:
+  - Some recommendation emails may be incorrectly classified as “Applied”
+  - Heuristic parsing continues to function
+
+This behavior is **intentional and visible**, not silent.
+
+---
+
+## 🧠 Planned Improvements (Roadmap)
+
+To reduce dependency on third-party AI and improve precision:
+
+- Build a **lightweight in-house email classifier**
+- Approach:
+  - Label 500–1,000 emails into:
+    - Applied
+    - Recommendation
+    - Other
+  - Focus on emails most commonly misclassified
+  - Apply sender + subject heuristics to reduce noise
+  - Train a baseline **Logistic Regression + TF-IDF** classifier
+  - Use active learning to iteratively improve precision
+
+---
+
+## 🛠 Tech Stack (Frontend)
+
+- **Next.js (App Router)**
+- **TypeScript**
+- **Tailwind CSS**
+- **Axios**
+- **ShadCN UI**
+- **Google OAuth Redirect Flow**
+
+---
+
+## 🚧 Project Status
+
+- Gmail sync: ✅ Working
+- Job detection: ✅ Working
+- Manual job entry: ✅ Working
+- AI parsing: ⚠️ Limited by daily quota
+- Recommendation vs applied differentiation: 🚧 In progress
+
+---
+
+## 🔒 Privacy & Security
+
+- Emails are **never modified**
+- Gmail access is **read-only**
+- Tokens are securely handled on the backend
+- No email content is shared or sold
+
+---
+
+## 📄 License
+
+MIT License
