@@ -29,10 +29,34 @@ export default function SettingsPage() {
   /**
    * Initial load – fetch Gmail connection status
    */
+  // useEffect(() => {
+  //   const loadStatus = async () => {
+  //     try {
+  //       const data = await getGmailStatus();
+  //       setStatus(data);
+  //     } catch {
+  //       toast.error("Failed to load Gmail status");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   loadStatus();
+  // }, []);
   useEffect(() => {
     const loadStatus = async () => {
       try {
         const data = await getGmailStatus();
+
+        if (data.expired) {
+          setStatus({
+            connected: false,
+            email: data.email,
+            lastSyncedAt: data.lastSyncedAt,
+          });
+          return;
+        }
+
         setStatus(data);
       } catch {
         toast.error("Failed to load Gmail status");
@@ -78,16 +102,32 @@ export default function SettingsPage() {
       // Refresh status after sync
       const updatedStatus = await getGmailStatus();
       setStatus(updatedStatus);
+      setSyncing(false);
     } catch (err: unknown) {
       if (err instanceof AxiosError) {
+        const code = err.response?.data?.code;
+
+        // 🔴 TOKEN EXPIRED → FORCE RECONNECT UI
+        if (code === "GMAIL_RECONNECT_REQUIRED") {
+          toast.error("Gmail access expired", {
+            description: "Please reconnect your Gmail account.",
+          });
+
+          setStatus({
+            connected: false,
+            email: status?.email ?? null,
+            lastSyncedAt: status?.lastSyncedAt ?? null,
+          });
+
+          return;
+        }
+
         toast.error("Gmail sync failed", {
           description: err.response?.data?.message || "Please try again later",
         });
       } else {
         toast.error("Unexpected error during Gmail sync");
       }
-    } finally {
-      setSyncing(false);
     }
   };
 
