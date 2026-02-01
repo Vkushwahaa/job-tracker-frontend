@@ -23,7 +23,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push("/dashboard");
+      router.replace("/dashboard");
     } catch (err: unknown) {
       if (err instanceof AxiosError) {
         setError(err.response?.data.message);

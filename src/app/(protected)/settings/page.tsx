@@ -3,16 +3,12 @@
 import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import { getGmailStatus, connectGmail, syncGmail } from "@/services/gmail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-// type GmailStatus = {
-//   connected: boolean;
-//   email: string | null;
-//   lastSyncedAt: string | null;
-// };
+import { ArrowBigLeft } from "lucide-react";
 
 type GmailStatus = {
   connected: boolean;
@@ -25,24 +21,8 @@ export default function SettingsPage() {
   const [status, setStatus] = useState<GmailStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const router = useRouter();
 
-  /**
-   * Initial load – fetch Gmail connection status
-   */
-  // useEffect(() => {
-  //   const loadStatus = async () => {
-  //     try {
-  //       const data = await getGmailStatus();
-  //       setStatus(data);
-  //     } catch {
-  //       toast.error("Failed to load Gmail status");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   loadStatus();
-  // }, []);
   useEffect(() => {
     const loadStatus = async () => {
       try {
@@ -68,9 +48,6 @@ export default function SettingsPage() {
     loadStatus();
   }, []);
 
-  /**
-   * Start OAuth flow
-   */
   const handleConnect = async () => {
     try {
       const { url } = await connectGmail();
@@ -80,15 +57,11 @@ export default function SettingsPage() {
     }
   };
 
-  /**
-   * Manual Gmail sync
-   */
   const handleSync = async () => {
     setSyncing(true);
 
     try {
       const res = await syncGmail();
-
       const { created, updated } = res.result;
 
       if (created === 0 && updated === 0) {
@@ -99,15 +72,12 @@ export default function SettingsPage() {
         });
       }
 
-      // Refresh status after sync
       const updatedStatus = await getGmailStatus();
       setStatus(updatedStatus);
-      setSyncing(false);
     } catch (err: unknown) {
       if (err instanceof AxiosError) {
         const code = err.response?.data?.code;
 
-        // 🔴 TOKEN EXPIRED → FORCE RECONNECT UI
         if (code === "GMAIL_RECONNECT_REQUIRED") {
           toast.error("Gmail access expired", {
             description: "Please reconnect your Gmail account.",
@@ -128,58 +98,89 @@ export default function SettingsPage() {
       } else {
         toast.error("Unexpected error during Gmail sync");
       }
+    } finally {
+      setSyncing(false);
     }
   };
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Loading…</p>;
+    return (
+      <div className="p-8 text-sm text-muted-foreground">
+        Loading Gmail settings…
+      </div>
+    );
   }
 
   return (
-    <Card className="max-w-xl">
-      <CardHeader>
-        <CardTitle>Gmail Integration</CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {/* NOT CONNECTED */}
-        {!status?.connected && (
-          <>
-            <p className="text-sm">
-              Connect your Gmail account to automatically detect and track job
-              application emails.
+    <div className="relative min-h-screen bg-background ">
+      <div className="max-w-2xl mx-auto py-10 space-y-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-0"
+          onClick={() => router.push("/dashboard")}
+          aria-label="Go back"
+        >
+          <ArrowBigLeft className="size-5" />
+        </Button>
+        <div className="w-full px-8 py-6">
+          {/* Page Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-semibold">Settings</h1>
+            <p className="text-sm text-muted-foreground">
+              Manage integrations and application preferences
             </p>
-            <Button onClick={handleConnect}>Connect Gmail</Button>
-          </>
-        )}
+          </div>
 
-        {/* CONNECTED */}
-        {status?.connected && (
-          <>
-            {syncing && (
-              <p className="text-sm text-blue-600">
-                Syncing your Gmail… this may take a few seconds.
-              </p>
-            )}
+          {/* Gmail Section */}
+          <div className="max-w-3xl">
+            <Card>
+              <CardHeader>
+                <CardTitle>Gmail Integration</CardTitle>
+              </CardHeader>
 
-            <div className="space-y-1">
-              <p>
-                Connected as <strong>{status.email}</strong>
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Last synced:{" "}
-                {status.lastSyncedAt
-                  ? new Date(status.lastSyncedAt).toLocaleString()
-                  : "Never"}
-              </p>
-            </div>
+              <CardContent className="space-y-4">
+                {!status?.connected && (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Connect your Gmail account to automatically detect and
+                      track job application emails.
+                    </p>
 
-            <Button onClick={handleSync} disabled={syncing}>
-              {syncing ? "Syncing…" : "Sync Gmail"}
-            </Button>
-          </>
-        )}
-      </CardContent>
-    </Card>
+                    <Button onClick={handleConnect}>Connect Gmail</Button>
+                  </>
+                )}
+
+                {status?.connected && (
+                  <>
+                    {syncing && (
+                      <p className="text-sm text-blue-600">
+                        Syncing Gmail… this may take a few seconds.
+                      </p>
+                    )}
+
+                    <div className="rounded-md border p-4 space-y-1">
+                      <p>
+                        Connected as <strong>{status.email}</strong>
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Last synced:{" "}
+                        {status.lastSyncedAt
+                          ? new Date(status.lastSyncedAt).toLocaleString()
+                          : "Never"}
+                      </p>
+                    </div>
+
+                    <Button onClick={handleSync} disabled={syncing}>
+                      {syncing ? "Syncing…" : "Sync Gmail"}
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
