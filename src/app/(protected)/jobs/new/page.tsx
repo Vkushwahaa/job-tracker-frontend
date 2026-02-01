@@ -29,7 +29,7 @@ export default function NewJobPage() {
       title: "",
     },
     status: "applied",
-    source: "other",
+    source: "manual",
     notes: "",
   });
 
@@ -38,7 +38,7 @@ export default function NewJobPage() {
 
   function updateField<K extends keyof typeof form>(
     key: K,
-    value: (typeof form)[K]
+    value: (typeof form)[K],
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -121,9 +121,11 @@ export default function NewJobPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="applied">Applied</SelectItem>
+                <SelectItem value="shortlisted">Shortlisted</SelectItem>
                 <SelectItem value="interview">Interview</SelectItem>
-                <SelectItem value="selected">Selected</SelectItem>
+                <SelectItem value="offer">Offer</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="withdrawn">Withdrawn</SelectItem>
               </SelectContent>
             </Select>
 
@@ -139,7 +141,7 @@ export default function NewJobPage() {
                 <SelectItem value="naukri">Naukri</SelectItem>
                 <SelectItem value="internshala">Internshala</SelectItem>
                 <SelectItem value="indeed">Indeed</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="manual">Manual</SelectItem>
               </SelectContent>
             </Select>
 

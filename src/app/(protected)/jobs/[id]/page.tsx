@@ -47,7 +47,15 @@ type Job = {
   };
 };
 
-const STATUS_OPTIONS = ["applied", "interview", "rejected", "selected"];
+const STATUS_OPTIONS = [
+  "draft",
+  "applied",
+  "shortlisted",
+  "interview",
+  "offer",
+  "rejected",
+  "withdrawn",
+];
 
 const SOURCE_OPTIONS = [
   "linkedin",
@@ -55,7 +63,7 @@ const SOURCE_OPTIONS = [
   "naukri",
   "internshala",
   "gmail",
-  "other",
+  "manual",
 ];
 
 export default function JobDetailPage() {
@@ -144,14 +152,17 @@ export default function JobDetailPage() {
         notes: job.notes,
       });
 
-      setOriginalJob(job);
+      setOriginalJob(structuredClone(job));
 
-      router.refresh();
       toast.success("Job updated", {
         description: "Your changes have been saved.",
       });
     } catch (err) {
-      toast.error("Failed to save job");
+      const error = err as { response?: { data?: { message?: string } } };
+      console.error("Save failed:", error?.response?.data || err);
+      toast.error("Failed to save job", {
+        description: error?.response?.data?.message ?? "Invalid data",
+      });
     } finally {
       setSaving(false);
     }
@@ -170,12 +181,26 @@ export default function JobDetailPage() {
     }
   }
 
+  const fetchJob = async () => {
+    try {
+      const res = await api.get(`/jobs/${jobId}`);
+      setJob(res.data.job);
+      setOriginalJob(res.data.job);
+    } catch {
+      router.push("/dashboard");
+    }
+  };
+  useEffect(() => {
+    fetchJob().finally(() => setLoading(false));
+  }, [jobId]);
+
   async function approveJob() {
     if (!job) return;
     try {
       await api.post(`/jobs/${job._id}/approve-gmail`);
       toast.success("Job approved");
       router.refresh();
+      await fetchJob();
     } catch {
       toast.error("Approve failed");
     }
@@ -316,7 +341,11 @@ export default function JobDetailPage() {
         {/* Actions */}
         <div className="flex justify-between">
           <div className="flex gap-3">
-            <Button onClick={handleSave} disabled={saving || !hasChanges()}>
+            <Button
+              type="button"
+              onClick={handleSave}
+              disabled={saving || !hasChanges()}
+            >
               {saving ? "Saving..." : "Save"}
             </Button>
 

@@ -29,7 +29,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 export const api = axios.create({
-  baseURL: "http://localhost:3001/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true, // ensures refresh cookie is sent
 });
 
@@ -100,7 +100,7 @@ api.interceptors.response.use(
         const refreshRes = await axios.post(
           `${api.defaults.baseURL}/auth/refresh`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         const newAccessToken = refreshRes.data?.accessToken;
@@ -130,7 +130,7 @@ api.interceptors.response.use(
           await axios.post(
             `${api.defaults.baseURL}/auth/logout`,
             {},
-            { withCredentials: true }
+            { withCredentials: true },
           );
         } catch (e) {
           /* swallow */
@@ -139,7 +139,7 @@ api.interceptors.response.use(
         reject(refreshErr);
       }
     });
-  }
+  },
 );
 
 /* ===========================

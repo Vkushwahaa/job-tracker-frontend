@@ -5,6 +5,8 @@ import React from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { FaGithub } from "react-icons/fa";
+import Link from "next/link";
 
 export default function HomePage() {
   const router = useRouter();
@@ -26,7 +28,7 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <div className="rounded-md bg-gradient-to-r from-indigo-600 to-sky-500 w-20 h-20 flex items-center justify-center text-white font-bold text-xl">
               <img
-                src="https://res.cloudinary.com/ddwinmcui/image/upload/v1769954914/Jobsync_b9bl8m.png"
+                src="https://res.cloudinary.com/ddwinmcui/image/upload/v1769959590/J_ixl4f6.png"
                 alt="Job page"
                 className="w-full h-auto object-cover"
               />
@@ -129,11 +131,9 @@ export default function HomePage() {
 
             <div className="absolute -bottom-12 left-4 w-55 rounded-lg bg-white p-2 border shadow-md">
               <div className="text-xs text-slate-500">Auto-detected</div>
-              <div className="mt-1 font-medium">
-                Python Developer — Maker Lab
-              </div>
+              <div className="mt-1 font-medium">Python Developer</div>
               <div className="mt-2 text-xs text-slate-500">
-                Confidence: <strong>90%</strong>
+                Confidence: <strong>80%</strong>
               </div>
             </div>
           </div>
@@ -224,6 +224,164 @@ export default function HomePage() {
               title="Exportable"
               text="Export your data as CSV or JSON for backup and analytics."
             />
+          </div>
+        </div>
+      </section>
+      {/* OAUTH SETUP — Paste this into HomePage (recommended: after AI + Limits, before footer) */}
+      <section id="oauth-setup" className="max-w-6xl mx-auto px-6 py-14">
+        <h3 className="text-2xl font-semibold">
+          Gmail connection what users must do
+        </h3>
+        <p className="mt-2 text-slate-600 max-w-2xl">
+          To enable automatic detection of job application emails we use OAuth —
+          you will be asked to grant read-only access to your Gmail. Below are
+          the exact steps users should follow and the screenshots to expect.
+        </p>
+
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-1">
+          <div>
+            <h4 className="font-medium">Step-by-step</h4>
+            <ol className="mt-3 list-decimal pl-5 space-y-2 text-sm text-slate-600">
+              <li>
+                Click <strong>Connect Gmail</strong> in Settings you will be
+                redirected to Google.
+              </li>
+              <li>Select the Google account you want to connect.</li>
+              <li>
+                If you see the “Google hasn’t verified this app” screen, click{" "}
+                <span className="font-medium">
+                  Advanced → Go to JobTracker (unsafe)
+                </span>{" "}
+                (only while testing). You can remove this warning by adding
+                yourself as a test user or completing verification in Google
+                Cloud Console (instructions below).
+              </li>
+              <li>
+                On the permission screen check the box next to{" "}
+                <em>“View your email messages and settings”</em> (the Gmail
+                scope) and then click <strong>Continue</strong>.
+              </li>
+              <li>
+                After accepting, you’ll be returned to JobSync and the app will
+                store a refresh token so future syncs run without re-consent.
+              </li>
+            </ol>
+          </div>
+
+          <div>
+            <h4 className="font-medium">Screenshots (what users will see)</h4>
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="border rounded p-1">
+                <Image
+                  src="https://res.cloudinary.com/ddwinmcui/image/upload/v1769974001/WhatsApp_Image_2026-02-02_at_00.09.39_fitind.jpg"
+                  alt="Google hasn't verified this app"
+                  width={360}
+                  height={140}
+                  className="object-contain"
+                />
+                <div className="text-xs mt-1 text-slate-500">
+                  1. Unverified app warning
+                </div>
+              </div>
+
+              <div className="border rounded p-2">
+                <Image
+                  src="https://res.cloudinary.com/ddwinmcui/image/upload/v1769974001/WhatsApp_Image_2026-02-02_at_00.15.52_dabab2.jpg"
+                  alt="Choose an account to continue"
+                  width={360}
+                  height={140}
+                  className="object-contain"
+                />
+                <div className="text-xs mt-1 text-slate-500">
+                  2. Choose account
+                </div>
+              </div>
+
+              <div className="border rounded p-2">
+                <Image
+                  src="https://res.cloudinary.com/ddwinmcui/image/upload/v1769980701/WhatsApp_Image_2026-02-02_at_02.46.36_id54tc.jpg"
+                  alt="Select Gmail access checkbox"
+                  width={360}
+                  height={140}
+                  className="object-contain"
+                />
+                <div className="text-xs mt-1 text-slate-500">
+                  3. Check the Gmail access box
+                </div>
+              </div>
+
+              <div className="border rounded p-2">
+                <Image
+                  src="https://res.cloudinary.com/ddwinmcui/image/upload/v1769980701/WhatsApp_Image_2026-02-02_at_02.47.20_esmb7c.jpg"
+                  alt="Confirm and continue"
+                  width={360}
+                  height={140}
+                  className="object-contain"
+                />
+                <div className="text-xs mt-1 text-slate-500">
+                  4. Continue to accept
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 p-4 border rounded bg-white">
+          <h4 className="font-medium">Dev notes — testing & publishing</h4>
+          <ul className="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-1">
+            <li>
+              For development/testing: Add your Gmail addresses as{" "}
+              <strong>Test users</strong> on the Google Cloud Console &gt; OAuth
+              consent screen so the unverified warning is bypassed.
+            </li>
+            <li>
+              For production (public users) Google requires verification when
+              you request restricted Gmail scopes — plan extra time for
+              verification.
+            </li>
+            <li>
+              Required scope used by the app:{" "}
+              <code>https://www.googleapis.com/auth/gmail.readonly</code>. Make
+              sure the OAuth consent screen and Cloud Console have this scope
+              enabled.
+            </li>
+          </ul>
+        </div>
+
+        <div className="mt-6">
+          <h4 className="font-medium">Source code</h4>
+          <p className="mt-2 text-sm text-slate-600">
+            Frontend and backend code are available on GitHub:
+          </p>
+
+          <div className="mt-3 flex gap-3">
+            <Button
+              onClick={() =>
+                window.open(
+                  "https://github.com/Vkushwahaa/job-tracker-frontend",
+                  "_blank",
+                  "noreferrer",
+                )
+              }
+              className="px-4 py-2 rounded border hover:bg-slate-50 hover:text-black"
+            >
+              <FaGithub />
+              Frontend → Github
+            </Button>
+            <Button
+              onClick={() =>
+                window.open(
+                  "https://github.com/Vkushwahaa/job-tracker-frontend",
+                  "_blank",
+                  "noreferrer",
+                )
+              }
+              className="px-4 py-2 rounded border hover:bg-slate-50 hover:text-black"
+            >
+              <FaGithub />
+              Backend → Github
+            </Button>
           </div>
         </div>
       </section>

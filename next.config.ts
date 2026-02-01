@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
 };
+
 // next.config.js
 module.exports = {
   images: {
