@@ -16,15 +16,20 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ArrowBigLeft } from "lucide-react";
 
 export default function NewJobPage() {
   const router = useRouter();
 
   const [form, setForm] = useState({
-    companyName: "",
-    jobTitle: "",
+    company: {
+      name: "",
+    },
+    job: {
+      title: "",
+    },
     status: "applied",
-    source: "linkedin",
+    source: "manual",
     notes: "",
   });
 
@@ -33,7 +38,7 @@ export default function NewJobPage() {
 
   function updateField<K extends keyof typeof form>(
     key: K,
-    value: (typeof form)[K]
+    value: (typeof form)[K],
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -44,7 +49,14 @@ export default function NewJobPage() {
     setLoading(true);
 
     try {
-      await api.post("/jobs", form);
+      await api.post("/jobs", {
+        company: form.company,
+        job: form.job,
+        status: form.status,
+        source: form.source,
+        notes: form.notes,
+      });
+
       router.push("/dashboard");
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -53,6 +65,20 @@ export default function NewJobPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function updateCompanyName(value: string) {
+    setForm((prev) => ({
+      ...prev,
+      company: { ...prev.company, name: value },
+    }));
+  }
+
+  function updateJobTitle(value: string) {
+    setForm((prev) => ({
+      ...prev,
+      job: { ...prev.job, title: value },
+    }));
   }
 
   return (
@@ -64,7 +90,7 @@ export default function NewJobPage() {
         onClick={() => router.back()}
         aria-label="Go back"
       >
-        <p>=</p>
+        <ArrowBigLeft className="size-5" />
       </Button>
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-xl">
@@ -74,15 +100,15 @@ export default function NewJobPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               placeholder="Company name"
-              value={form.companyName}
-              onChange={(e) => updateField("companyName", e.target.value)}
+              value={form.company.name}
+              onChange={(e) => updateCompanyName(e.target.value)}
               required
             />
 
             <Input
               placeholder="Job title"
-              value={form.jobTitle}
-              onChange={(e) => updateField("jobTitle", e.target.value)}
+              value={form.job.title}
+              onChange={(e) => updateJobTitle(e.target.value)}
               required
             />
 
@@ -95,9 +121,11 @@ export default function NewJobPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="applied">Applied</SelectItem>
+                <SelectItem value="shortlisted">Shortlisted</SelectItem>
                 <SelectItem value="interview">Interview</SelectItem>
-                <SelectItem value="selected">Selected</SelectItem>
+                <SelectItem value="offer">Offer</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="withdrawn">Withdrawn</SelectItem>
               </SelectContent>
             </Select>
 
@@ -113,7 +141,7 @@ export default function NewJobPage() {
                 <SelectItem value="naukri">Naukri</SelectItem>
                 <SelectItem value="internshala">Internshala</SelectItem>
                 <SelectItem value="indeed">Indeed</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="manual">Manual</SelectItem>
               </SelectContent>
             </Select>
 
