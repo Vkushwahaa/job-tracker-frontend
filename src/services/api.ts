@@ -45,7 +45,9 @@ api.interceptors.response.use(
     if (!error.response || error.response.status !== 401) {
       return Promise.reject(error);
     }
-
+    if (originalRequest.url?.includes("/auth/")) {
+      return Promise.reject(error);
+    }
     // Prevent infinite loop
     if (originalRequest._retry) {
       return Promise.reject(error);
