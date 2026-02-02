@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
-const proxy = process.env.NEXT_PUBLIC_API_URL || "";
+
+const API = process.env.NEXT_PUBLIC_API_URL;
+
 const nextConfig: NextConfig = {
   reactCompiler: true,
 
@@ -7,7 +9,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: proxy,
+        destination: `${API}/api/:path*`, // ← REQUIRED
       },
     ];
   },
