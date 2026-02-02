@@ -1,6 +1,7 @@
-# Job Tracker – Smart Gmail-Powered Job Application Tracker
+# Job Sync – Smart Gmail-Powered Job Application Tracker
+<img width="1470" height="645" alt="image" src="https://github.com/user-attachments/assets/5b8af6b5-7c9a-4f7d-b842-6c433ee0738f" />
 
-Job Tracker is a web application that automatically tracks your job applications by securely syncing with your Gmail inbox. It detects application confirmation emails, extracts relevant job details, and organizes them into a structured dashboard — reducing the need for manual tracking.
+Job Sync is a web application that automatically tracks your job applications by securely syncing with your Gmail inbox. It detects application confirmation emails, extracts relevant job details, and organizes them into a structured dashboard reducing the need for manual tracking.
 
 The application combines **rule-based email parsing** with **AI-assisted extraction** to identify job applications, while still allowing full manual control.
 
@@ -40,8 +41,8 @@ The application combines **rule-based email parsing** with **AI-assisted extract
 - Shows extracted data and internal notes
 - Useful for reviewing auto-detected entries
 
-<img width="1470" height="691" alt="image" src="https://github.com/user-attachments/assets/83a34509-b4a7-4c21-aedb-54b62f6d919e" />
-
+[<img width="1470" height="691" alt="image" src="https://github.com/user-attachments/assets/83a34509-b4a7-4c21-aedb-54b62f6d919e" />
+](https://res.cloudinary.com/ddwinmcui/image/upload/v1769959787/image2_cie1sr.png)
 ---
 
 ### ✍️ Manual Job Entry
