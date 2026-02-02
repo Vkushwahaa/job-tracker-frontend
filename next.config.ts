@@ -1,12 +1,17 @@
 import type { NextConfig } from "next";
-
+const proxy = process.env.NEXT_PUBLIC_API_URL || "";
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
-};
 
-// next.config.js
-module.exports = {
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: proxy,
+      },
+    ];
+  },
+
   images: {
     remotePatterns: [
       {

@@ -99,15 +99,21 @@ export default function HomePage() {
             </p>
 
             <div className="mt-8 flex gap-3">
-              <Button
-                onClick={handleRegister}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-indigo-600 text-white font-semibold shadow"
-              >
-                Create account
-              </Button>
+              {loading ? (
+                <div>Loading...</div>
+              ) : user ? (
+                <Button onClick={handleDashboard}>dashboard</Button>
+              ) : (
+                <Button
+                  onClick={handleRegister}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-indigo-600 text-white font-semibold shadow"
+                >
+                  Create account
+                </Button>
+              )}
               <a
                 href="#features"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-md border border-slate-200"
+                className="inline-flex items-center gap-2 px-5 py-1.5 rounded-md border border-slate-200"
               >
                 See features
               </a>
